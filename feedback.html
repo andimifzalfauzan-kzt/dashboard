@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feedback & Masukan - Kalla Beton</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+      .sidebar, .main-wrapper { transition: 0.3s ease; }
+  body.sidebar-collapsed .sidebar { transform: translateX(-230px); }
+  body.sidebar-collapsed .main-wrapper { margin-left: 0; }
+    :root {
+      --primary-dark: #004d3d;
+      --primary-green: #0a5c36;
+      --accent-green: #198754;
+      --accent-yellow: #f0a500;
+      --accent-blue: #0d6efd;
+      --bg-light: #f4f6f9;
+      --card-border-radius: 8px;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-light);
+      font-size: 0.82rem;
+      color: #333;
+    }
+    /* Sidebar */
+    .sidebar {
+      width: 230px;
+      background-color: var(--primary-dark);
+      min-height: 100vh;
+      color: #fff;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .sidebar .logo-section {
+      padding: 12px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background-color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sidebar .logo-section img {
+      max-width: 100%;
+      max-height: 60px;
+      object-fit: contain;
+    }
+    .sidebar-menu {
+      padding: 6px 0;
+      list-style: none;
+      margin: 0;
+    }
+    .sidebar-menu li a {
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      padding: 6px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 500;
+      font-size: 0.75rem;
+      transition: all 0.2s;
+    }
+    .sidebar-menu li.active a, .sidebar-menu li a:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      border-left: 4px solid var(--accent-yellow);
+    }
+    .sidebar-menu li a.logout-btn { color: #fca5a5; }
+    .sidebar-menu li a.logout-btn:hover {
+      background-color: rgba(220, 38, 38, 0.2);
+      color: #f87171;
+      border-left: 4px solid #ef4444;
+    }
+    /* Main */
+    .main-wrapper {
+      margin-left: 230px;
+      padding: 15px 20px;
+    }
+    .header-container {
+      background: #fff;
+      padding: 10px 18px;
+      border-radius: var(--card-border-radius);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      margin-bottom: 12px;
+    }
+    .dashboard-title {
+      font-weight: 700;
+      color: #222;
+      font-size: 1.05rem;
+      margin: 0;
+    }
+    .dashboard-subtitle {
+      font-size: 0.72rem;
+      color: #666;
+    }
+    .filter-label {
+      font-size: 0.68rem;
+      color: #666;
+      margin-bottom: 2px;
+    }
+    /* KPI */
+    .kpi-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .card-kpi {
+      background: #fff;
+      border-radius: var(--card-border-radius);
+      border: 1px solid #e2e8f0;
+      padding: 12px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 105px;
+    }
+    .card-custom {
+      background: #fff;
+      border-radius: var(--card-border-radius);
+      border: 1px solid #e2e8f0;
+      padding: 12px 16px;
+      height: 100%;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+      position: relative;
+    }
+    .kpi-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      color: white;
+      flex-shrink: 0;
+    }
+    .bg-green-dark { background-color: var(--primary-dark); }
+    .bg-blue { background-color: #0284c7; }
+    .bg-yellow { background-color: var(--accent-yellow); }
+    .bg-teal { background-color: #0d9488; }
+    .kpi-value {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1e293b;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+    .kpi-title {
+      font-size: 0.60rem;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .kpi-sub {
+      font-size: 0.62rem;
+      color: #64748b;
+      white-space: nowrap;
+      margin-top: 2px;
+    }
+    .section-header {
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: #1e293b;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 6px;
+    }
+    .form-label-custom {
+      font-weight: 600;
+      font-size: 0.75rem;
+      color: #334155;
+      margin-bottom: 4px;
+    }
+    .footer-text {
+      font-size: 0.9rem;
+      color: #64748b;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar Navbar (routing server) -->
+  <div class="sidebar">
+    <div>
+      <div class="logo-section">
+        <img src="https://lh3.googleusercontent.com/d/1wUzDBp9HDzZMHR3DoC4IsUQCoLon6-fY" alt="kalla_beton">
+      </div>
+<ul class="sidebar-menu">
+  <li><a href="<?= scriptUrl ?>?page=dashboard" target="_top"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
+  <li><a href="<?= scriptUrl ?>?page=demografi" target="_top"><i class="fas fa-users"></i> Demografi</a></li>
+  <li><a href="#"><i class="fa-solid fa-sitemap"></i> Struktur Organisasi</a></li>        
+  <li><a href="<?= scriptUrl ?>?page=jobprofile" target="_top"><i class="fa-solid fa-id-card-clip"></i> Job Profile</a></li>
+  
+  <!-- UBAH link halaman yang belum tersedia menjadi href="#" -->
+  <li><a href="#"><i class="fa-solid fa-chart-line"></i> Produktivitas</a></li>
+  <li><a href="#"><i class="fa-solid fa-industry"></i> Produksi</a></li>
+  <li><a href="#"><i class="fa-solid fa-cart-shopping"></i> Penjualan</a></li>
+  <li><a href="#"><i class="fa-solid fa-wallet"></i> Man Power Cost</a></li>
+  <li><a href="#"><i class="fa-solid fa-chart-simple"></i> Analisis Perbandingan</a></li>
+  <li><a href="#"><i class="fa-solid fa-file-circle-plus"></i> Pengajuan HC</a></li>       
+  
+  <li><a href="<?= scriptUrl ?>?page=feedback" target="_top"><i class="fa-solid fa-comments"></i> Feedback</a></li>
+</ul>
+    </div>
+    <div class="pb-2">
+      <ul class="sidebar-menu">
+        <li><a href="<?= scriptUrl ?>?page=about" target="_top"><i class="fa-solid fa-circle-info"></i> Tentang Dashboard</a></li>
+        <li><a href="<?= scriptUrl ?>" target="_top" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+      </ul>
+    </div>
+  </div>
+  <!-- Main Content -->
+  <div class="main-wrapper">
+    <!-- Header -->
+    <div class="header-container d-flex align-items-center gap-3">
+      <button class="btn btn-sm btn-outline-secondary border-0" onclick="document.body.classList.toggle('sidebar-collapsed')">
+         <i class="fa-solid fa-bars"></i>
+      </button>
+      <div>
+        <h1 class="dashboard-title">FEEDBACK - KALLA BETON</h1>
+        <div class="dashboard-subtitle">Formulir evaluasi dan saran pengembangan Perusahaan</div>
+      </div>
+    </div>
+    <!-- Form + Panduan -->
+    <div class="row g-2 mb-2">
+      <!-- Form -->
+      <div class="col-lg-7 col-md-12">
+        <div class="card-custom">
+          <div class="section-header"><i class="fa-solid fa-paper-plane me-1"></i> Kirim Feedback / Masukan</div>
+          <form id="feedbackForm" autocomplete="off">
+            <div class="mb-2">
+              <label for="lokasiKerja" class="form-label-custom">Lokasi Kerja</label>
+              <select id="lokasiKerja" class="form-select form-select-sm" required>
+                <option value="" selected disabled>Pilih Lokasi Kerja</option>
+                <option>Head Office Wisma Kalla</option>
+                <option>Unit Project Kalimantan Timur</option>
+                <option>Unit Project Makassar</option>
+                <option>Unit Precast Bontoramba</option>
+                <option>Office Non Ready Mix Kima 17</option>
+                <option>Unit Stonecrusher Lonjoboko</option>
+                <option>Unit Precast Kima 17</option>
+                <option>Unit Bata Ringan & Mortar Kima 17</option>
+                <option>Unit Project Sulawesi Tenggara</option>
+                <option>Unit Project Kalsel</option>
+                <option>Unit Project Buton</option>
+                <option>Unit Project Morowali</option>
+                <option>Office Ready Mix Abdesir</option> 
+                <option>Unit Project Pomalaa</option>
+                <option>Unit Project Wajo</option>
+                <option>Unit Project Wolo</option>
+                <option>Unit Project Sulawesi Tengah</option>
+                <option>Unit Project Sidrap</option>
+              </select>
+            </div>
+            <div class="mb-2">
+              <label for="kategori" class="form-label-custom">Kategori Feedback</label>
+              <select id="kategori" class="form-select form-select-sm" required>
+                <option value="" selected disabled>Pilih Kategori</option>
+                <option value="Layanan & Administrasi HC">Layanan & Administrasi</option>
+                <option value="Pengembangan Fitur">Saran & Usulan Fitur/Sistem</option>
+                <option value="Laporan Bug / Error">Laporan Kendala / Bug Data</option>
+                <option value="Sarana & Prasarana">Sarana & Prasarana</option>
+                <option value="Lainnya">Lainnya</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <label for="pesan" class="form-label-custom mb-0">Pesan / Detail Feedback</label>
+                <span class="text-muted" style="font-size:0.65rem;" id="charCounter">0 / 500 karakter</span>
+              </div>
+              <textarea id="pesan" class="form-control form-control-sm" rows="4" maxlength="500" placeholder="Tuliskan masukan, saran, atau kendala Anda di sini..." required></textarea>
+            </div>
+            
+            <button type="submit" id="submitBtn" class="btn btn-sm text-white w-100" style="background-color: var(--primary-dark);">
+              <i class="fa-solid fa-paper-plane me-1"></i> Kirim Feedback
+            </button>
+          </form>
+          <!-- Notifikasi status -->
+          <div id="alertBox" class="d-none mt-3"></div>
+        </div>
+      </div>
+      <!-- Panduan -->
+      <div class="col-lg-5 col-md-12">
+        <div class="card-custom">
+          <div class="section-header">
+            <i class="fa-solid fa-circle-info text-primary me-1"></i> PANDUAN PENGISIAN FEEDBACK
+          </div>
+          <div class="d-flex flex-column gap-3 mt-3" style="font-size: 0.78rem; line-height: 1.45; color: #334155;">
+            <div class="d-flex align-items-start gap-2">
+              <i class="fa-solid fa-check text-success mt-1" style="font-size: 0.85rem;"></i>
+              <div>
+                <strong>Akurasi Data & Layanan:</strong> Apabila menyampaikan kendala administrasi, kebijakan, atau ketidaknyamanan, mohon cantumkan detail unit/lokasi kerja terkait.
+              </div>
+            </div>
+            <div class="d-flex align-items-start gap-2">
+              <i class="fa-solid fa-check text-success mt-1" style="font-size: 0.85rem;"></i>
+              <div>
+                <strong>Saran & Usulan:</strong> Jelaskan gagasan, usulan fitur, atau masukan pengembangan untuk perusahaan secara spesifik agar dapat ditindaklanjuti secara efektif.
+              </div>
+            </div>
+            <div class="d-flex align-items-start gap-2">
+              <i class="fa-solid fa-shield-halved text-primary mt-1" style="font-size: 0.85rem;"></i>
+              <div>
+                <strong>Kerahasiaan:</strong> Seluruh data feedback bersifat anonim dan 3 feedback teratas akan diangkat sebagai bahan evaluasi pada saat PDCA.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Footer -->
+    <div class="footer-text text-center">
+      Catatan: Seluruh masukan atau feedback yang dikirimkan terintegrasi secara aman dan dijaga kerahasiaannya oleh Tim Human Capital.
+    </div>
+  </div>
+
+  <script>
+    // ---------- COUNTER KARAKTER ----------
+    const pesanInput = document.getElementById('pesan');
+    const charCounter = document.getElementById('charCounter');
+    
+    pesanInput.addEventListener('input', function () {
+      charCounter.textContent = this.value.length + ' / 500 karakter';
+    });
+
+    // ---------- PENGIRIMAN KE GOOGLE APPS SCRIPT ----------
+    const feedbackForm = document.getElementById('feedbackForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const alertBox = document.getElementById('alertBox');
+
+    feedbackForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      
+      const lokasiKerja = document.getElementById('lokasiKerja').value;
+      const kategori = document.getElementById('kategori').value;
+      const pesan = document.getElementById('pesan').value.trim();
+
+      if (!lokasiKerja || !kategori || !pesan) {
+        showAlert('danger', 'Harap lengkapi seluruh kolom isian.');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Mengirim Feedback...';
+      alertBox.classList.add('d-none');
+
+      const formData = {
+        lokasiKerja: lokasiKerja,
+        kategori: kategori,
+        pesan: pesan
+      };
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(function (response) {
+            resetSubmitButton();
+            if (response && response.success) {
+              showAlert('success', response.message || 'Feedback berhasil dikirim!');
+              resetForm();
+            } else {
+              showAlert('danger', (response && response.message) ? response.message : 'Gagal mengirim feedback.');
+            }
+          })
+          .withFailureHandler(function (error) {
+            resetSubmitButton();
+            showAlert('danger', 'Terjadi kesalahan sistem: ' + (error.message || error));
+          })
+          .submitFeedback(formData);
+      } else {
+        // Mode demo di luar Apps Script
+        setTimeout(function () {
+          resetSubmitButton();
+          showAlert('success', 'Feedback berhasil dikirim (Mode Demo). Terima kasih atas masukan Anda!');
+          resetForm();
+        }, 1200);
+      }
+    });
+
+    function resetForm() {
+      feedbackForm.reset();
+      charCounter.textContent = '0 / 500 karakter';
+    }
+
+    function resetSubmitButton() {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane me-1"></i> Kirim Feedback';
+    }
+
+    function showAlert(type, message) {
+      alertBox.className = 'alert alert-' + type + ' alert-dismissible fade show p-2 mt-3';
+      alertBox.style.fontSize = '0.75rem';
+      const icon = type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation';
+      
+      alertBox.innerHTML =
+        '<i class="fa-solid ' + icon + ' me-2"></i>' + message +
+        '<button type="button" class="btn-close p-2" data-bs-dismiss="alert" aria-label="Close"></button>';
+      alertBox.classList.remove('d-none');
+    }
+  </script>
+  <!-- Bootstrap 5 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
