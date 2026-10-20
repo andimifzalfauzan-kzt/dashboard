@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demografi Karyawan - Kalla Beton</title>
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Chart.js DataLabels Plugin -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+  
+  <style>
+      .sidebar, .main-wrapper { transition: 0.3s ease; }
+  body.sidebar-collapsed .sidebar { transform: translateX(-230px); }
+  body.sidebar-collapsed .main-wrapper { margin-left: 0; }
+    :root {
+      --primary-dark: #004d3d;
+      --primary-green: #0a5c36;
+      --accent-green: #198754;
+      --accent-yellow: #f0a500;
+      --accent-blue: #0d6efd;
+      --bg-light: #f4f6f9;
+      --card-border-radius: 8px;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-light);
+      font-size: 0.82rem;
+      color: #333;
+    }
+    /* Sidebar Styling */
+    .sidebar {
+      width: 230px;
+      background-color: var(--primary-dark);
+      min-height: 100vh;
+      color: #fff;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .sidebar .logo-section {
+      padding: 12px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background-color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sidebar .logo-section img {
+      max-width: 100%;
+      max-height: 60px;
+      object-fit: contain;
+    }
+    .sidebar-menu {
+      padding: 6px 0;
+      list-style: none;
+      margin: 0;
+    }
+    .sidebar-menu li a {
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      padding: 6px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 500;
+      font-size: 0.75rem;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .sidebar-menu li.active a, .sidebar-menu li a:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      border-left: 4px solid var(--accent-yellow);
+    }
+    .sidebar-menu li a.logout-btn {
+      color: #fca5a5;
+    }
+    .sidebar-menu li a.logout-btn:hover {
+      background-color: rgba(220, 38, 38, 0.2);
+      color: #f87171;
+      border-left: 4px solid #ef4444;
+    }
+    /* Main Content */
+    .main-wrapper {
+      margin-left: 230px;
+      padding: 15px 20px;
+    }
+    
+    /* Header Controls */
+    .header-container {
+      background: #fff;
+      padding: 12px 20px;
+      border-radius: var(--card-border-radius);
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+      margin-bottom: 15px;
+    }
+    .dashboard-title {
+      font-weight: 700;
+      color: #111827;
+      font-size: 1.12rem;
+      margin: 0;
+      letter-spacing: -0.2px;
+      line-height: 1.25;
+    }
+    .dashboard-subtitle {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-top: 2px;
+      font-weight: 400;
+    }
+    .filter-label {
+      font-size: 0.72rem;
+      color: #6b7280;
+      margin-bottom: 3px;
+      font-weight: 400;
+    }
+    .form-select-header {
+      font-size: 0.78rem;
+      color: #374151;
+      border-color: #d1d5db;
+      border-radius: 6px;
+      padding: 4px 28px 4px 10px;
+      font-weight: 400;
+    }
+    .btn-refresh {
+      border: 1px solid #d1d5db;
+      background-color: #fff;
+      color: #4b5563;
+      border-radius: 6px;
+      width: 33px;
+      height: 31px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+    .btn-refresh:hover {
+      background-color: #f3f4f6;
+      color: #111827;
+    }
+    .header-divider {
+      width: 1px;
+      height: 28px;
+      background-color: #e5e7eb;
+      margin: 0 4px;
+    }
+    .update-label {
+      font-size: 0.7rem;
+      color: #6b7280;
+      font-weight: 400;
+      text-align: right;
+    }
+    .update-time {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #111827;
+      text-align: right;
+    }
+    /* Layout 4 Card KPI */
+    .kpi-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .card-kpi {
+      background: #fff;
+      border-radius: var(--card-border-radius);
+      border: 1px solid #e2e8f0;
+      padding: 12px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 95px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      cursor: pointer;
+    }
+    .card-kpi:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    }
+    .card-custom {
+      background: #fff;
+      border-radius: var(--card-border-radius);
+      border: 1px solid #e2e8f0;
+      padding: 12px;
+      height: 100%;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    /* Icon KPI */
+    .kpi-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      color: white;
+      flex-shrink: 0;
+    }
+    .bg-green-dark { background-color: var(--primary-dark); }
+    .bg-blue { background-color: #0284c7; }
+    .bg-yellow { background-color: var(--accent-yellow); }
+    .bg-teal { background-color: #0d9488; }
+    .bg-dark-square { background-color: #1e293b; }
+    
+    .kpi-value {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #1e293b;
+      line-height: 1.2;
+    }
+    .kpi-title {
+      font-size: 0.60rem;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .kpi-sub {
+      font-size: 0.62rem;
+      color: #64748b;
+      margin-top: 2px;
+    }
+    /* Detail Link Style */
+    .btn-detail-link {
+      font-size: 0.68rem;
+      color: var(--accent-blue);
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+    .btn-detail-link:hover {
+      color: #0b5ed7;
+      text-decoration: underline;
+    }
+    .chart-header {
+      font-weight: 700;
+      font-size: 0.72rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+    .table-custom {
+      font-size: 0.72rem;
+    }
+    .table-custom th {
+      background-color: var(--primary-dark);
+      color: white;
+      font-weight: 600;
+      text-align: center;
+      vertical-align: middle;
+      padding: 6px 6px;
+    }
+    .table-custom td {
+      padding: 6px 6px;
+      vertical-align: middle;
+    }
+    .footer-text {
+      font-size: 0.68rem;
+      color: #64748b;
+      margin-top: 12px;
+    }
+    /* Style Khusus Kartu On Progress */
+    .card-on-progress {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      max-width: 520px;
+      margin: 80px auto;
+      padding: 45px 30px 40px 30px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    .card-on-progress .icon-wrapper {
+      margin-bottom: 18px;
+    }
+    .card-on-progress .icon-wrapper i {
+      font-size: 3.2rem;
+      color: #fbc02d;
+    }
+    .card-on-progress .progress-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 10px;
+    }
+    .card-on-progress .progress-desc {
+      font-size: 0.82rem;
+      color: #6b7280;
+      line-height: 1.5;
+      margin: 0 auto 24px auto;
+      max-width: 460px;
+    }
+    .card-on-progress .btn-back-dashboard {
+      background-color: var(--primary-dark);
+      color: #ffffff;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 8px 20px;
+      border-radius: 6px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: none;
+      transition: background-color 0.2s;
+    }
+    .card-on-progress .btn-back-dashboard:hover {
+      background-color: #00362b;
+      color: #ffffff;
+    }
+    /* Loading state for table */
+    .table-loading {
+      text-align: center;
+      padding: 20px;
+      color: #94a3b8;
+      font-size: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar Navbar -->
+  <div class="sidebar">
+    <div>
+      <div class="logo-section">
+        <img src="https://lh3.googleusercontent.com/d/1wUzDBp9HDzZMHR3DoC4IsUQCoLon6-fY" alt="kalla_beton">
+      </div>
+      <ul class="sidebar-menu">
+        <li>
+          <a href="<?= scriptUrl ?>?page=dashboard" target="_top" id="linkDashboard">
+            <i class="fa-solid fa-gauge"></i> Dashboard
+          </a>
+        </li>
+        <li class="active">
+          <a href="#" id="linkDemografi">
+            <i class="fas fa-users"></i> Demografi
+          </a>
+        </li>
+        <li><a href="#"><i class="fa-solid fa-sitemap"></i> Struktur Organisasi</a></li>
+        <li>
+          <a href="<?= scriptUrl ?>?page=jobprofile" target="_top">
+            <i class="fa-solid fa-id-card-clip"></i> Job Profile
+          </a>
+        </li>
+        <li><a href="#"><i class="fa-solid fa-chart-line"></i> Produktivitas</a></li>
+        <li><a href="#"><i class="fa-solid fa-industry"></i> Produksi</a></li>
+        <li><a href="#"><i class="fa-solid fa-cart-shopping"></i> Penjualan</a></li>
+        <li><a href="#"><i class="fa-solid fa-wallet"></i> Man Power Cost</a></li>
+        <li><a href="#"><i class="fa-solid fa-chart-simple"></i> Analisis Perbandingan</a></li>
+        <li><a href="#"><i class="fa-solid fa-file-circle-plus"></i> Pengajuan HC</a></li>       
+        <li>
+          <a href="<?= scriptUrl ?>?page=feedback" target="_top" id="linkFeedback">
+            <i class="fa-solid fa-comments"></i> Feedback
+          </a>
+        </li>
+      </ul>
+    </div>
+    
+    <!-- Bagian Bawah Sidebar (Tentang & Logout) -->
+    <div class="pb-2">
+      <ul class="sidebar-menu">
+        <li><a href="#"><i class="fa-solid fa-circle-info"></i> Tentang Dashboard</a></li>
+        <li>
+          <a href="<?= scriptUrl ?>" target="_top" class="logout-btn">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <!-- Main Content Wrapper -->
+  <div class="main-wrapper">
+    <!-- VIEW 1: KONTEN UTAMA DEMOGRAFI / DASHBOARD -->
+    <div id="demografiView">
+      <!-- Header Controls -->
+      <div class="header-container d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <button class="btn btn-sm btn-outline-secondary border-0" onclick="document.body.classList.toggle('sidebar-collapsed')">
+         <i class="fa-solid fa-bars"></i>
+        </button>
+        <div>
+          <h1 class="dashboard-title">DEMOGRAFI KARYAWAN</h1>
+          <div class="dashboard-subtitle">Data per : <span id="lblPeriode">Memuat...</span></div>
+        </div>
+        
+        <!-- Filter Controls & Timestamp -->
+        <div class="d-flex align-items-end gap-2 flex-wrap ms-auto">
+          <div>
+            <div class="filter-label">Periode</div>
+            <select class="form-select form-select-header" id="periodeSelect" style="width: 125px;" onchange="onPeriodeChange()">
+              <option>Loading...</option>
+            </select>
+          </div>
+          <div>
+            <button class="btn-refresh" onclick="refreshDashboard()" title="Refresh">
+              <i class="fa-solid fa-rotate-right"></i>
+            </button>
+          </div>
+          <div class="header-divider d-none d-sm-block"></div>
+          <div class="ps-1">
+            <div class="update-label">Terakhir Update:</div>
+            <div class="update-time">Real-time</div>
+          </div>
+        </div>
+      </div>
+      <!-- Row 1: 5 Card KPI Demografi -->
+      <div class="kpi-grid-4">
+        <div class="card-kpi" onclick="openDetailModal('all')">
+          <div>
+            <div class="d-flex justify-content-between align-items-start mb-1">
+              <div class="kpi-title">TOTAL HEADCOUNT (ESS)</div>
+              <div class="kpi-icon bg-teal"><i class="fa-solid fa-users"></i></div>
+            </div>
+            <div class="kpi-value" id="kpi-headcount">0</div>
+          </div>
+          <div class="kpi-sub" id="kpi-sub-headcount"><strong>0</strong> Tetap | <strong>0</strong> Kontrak</div>
+        </div>
+        <div class="card-kpi" onclick="openDetailModal('gender')">
+          <div>
+            <div class="d-flex justify-content-between align-items-start mb-1">
+              <div class="kpi-title">RASIO GENDER</div>
+              <div class="kpi-icon bg-blue"><i class="fa-solid fa-venus-mars"></i></div>
+            </div>
+            <div class="kpi-value" id="kpi-gender">0% <span style="font-size:0.68rem; font-weight:normal; color:#64748b;">Pria</span></div>
+          </div>
+          <div class="kpi-sub" id="kpi-sub-gender">0 Pria | 0 Wanita (0%)</div>
+        </div>
+        <div class="card-kpi" onclick="openDetailModal('usia')">
+          <div>
+            <div class="d-flex justify-content-between align-items-start mb-1">
+              <div class="kpi-title">RATA-RATA USIA</div>
+              <div class="kpi-icon bg-yellow"><i class="fa-solid fa-cake-candles"></i></div>
+            </div>
+            <div class="kpi-value" id="kpi-age">0 <span style="font-size:0.68rem; font-weight:normal; color:#64748b;">Thn</span></div>
+          </div>
+          <div class="kpi-sub">Dominan Gen Y</div>
+        </div>
+        <div class="card-kpi" onclick="openDetailModal('pendidikan')">
+          <div>
+            <div class="d-flex justify-content-between align-items-start mb-1">
+              <div class="kpi-title">PENDIDIKAN DOMINAN</div>
+              <div class="kpi-icon bg-green-dark"><i class="fa-solid fa-graduation-cap"></i></div>
+            </div>
+            <div class="kpi-value" id="kpi-pendidikan" style="font-size: 0.95rem;">-</div>
+          </div>
+          <div class="kpi-sub" id="kpi-sub-pendidikan">0 Karyawan (0%)</div>
+        </div>
+      </div>
+      <!-- Row 2: Charts Generasi & Usia -->
+      <div class="row g-2 mb-2">
+        <div class="col-md-4">
+          <div class="card-custom">
+            <div>
+              <div class="chart-header">KOMPOSISI GENERASI</div>
+              <div style="height: 180px; position: relative;">
+                <canvas id="generasiChart"></canvas>
+              </div>
+            </div>
+            <div class="text-end mt-2">
+              <a class="btn-detail-link" onclick="openDetailModal('generasi')">
+                Lihat Detail <i class="fa-solid fa-arrow-right" style="font-size: 0.65rem;"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-8">
+          <div class="card-custom">
+            <div>
+              <div class="chart-header">DISTRIBUSI RENTANG USIA KARYAWAN</div>
+              <div style="height: 180px; position: relative;">
+                <canvas id="usiaChart"></canvas>
+              </div>
+            </div>
+            <div class="text-end mt-2">
+              <a class="btn-detail-link" onclick="openDetailModal('usia')">
+                Lihat Detail <i class="fa-solid fa-arrow-right" style="font-size: 0.65rem;"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Row 3: Charts Job Level & Pendidikan -->
+      <div class="row g-2 mb-2">
+        <div class="col-md-6">
+          <div class="card-custom">
+            <div>
+              <div class="chart-header">HIERARKI LEVEL JABATAN (JOB LEVEL)</div>
+              <div style="height: 200px; position: relative;">
+                <canvas id="jobLevelChart"></canvas>
+              </div>
+            </div>
+            <div class="text-end mt-2">
+              <a class="btn-detail-link" onclick="openDetailModal('joblevel')">
+                Lihat Detail <i class="fa-solid fa-arrow-right" style="font-size: 0.65rem;"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card-custom">
+            <div>
+              <div class="chart-header">TINGKAT PENDIDIKAN TERAKHIR</div>
+              <div style="height: 200px; position: relative;">
+                <canvas id="pendidikanChart"></canvas>
+              </div>
+            </div>
+            <div class="text-end mt-2">
+              <a class="btn-detail-link" onclick="openDetailModal('pendidikan')">
+                Lihat Detail <i class="fa-solid fa-arrow-right" style="font-size: 0.65rem;"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Row 4: Chart Masa Kerja & Tabel Lokasi Utama -->
+      <div class="row g-2 mb-2 align-items-stretch">
+        <div class="col-md-6 d-flex flex-column">
+          <div class="card-custom d-flex flex-column justify-content-between h-100">
+            <div class="d-flex flex-column flex-grow-1">
+              <div class="chart-header">MASA KERJA KARYAWAN</div>
+              <div style="position: relative; flex-grow: 1; min-height: 320px; width: 100%;">
+                <canvas id="masaKerjaChart"></canvas>
+              </div>
+            </div>
+            <div class="text-end mt-2">
+              <a class="btn-detail-link" onclick="openDetailModal('masakerja')">
+                Lihat Detail <i class="fa-solid fa-arrow-right" style="font-size: 0.65rem;"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Tabel Sebaran Karyawan Per Lokasi Utama -->
+        <div class="col-md-6 d-flex flex-column">
+          <div class="card-custom h-100">
+            <div>
+              <div class="chart-header">SEBARAN KARYAWAN PER LOKASI UTAMA</div>
+              <div class="table-responsive">
+                <table class="table table-bordered table-striped table-custom mb-0">
+                  <thead>
+                    <tr>
+                      <th rowspan="2" class="align-middle text-center">Lokasi / Unit</th>
+                      <th colspan="3" class="text-center">ESS</th>
+                      <th rowspan="2" class="align-middle text-center">Harian</th>
+                      <th rowspan="2" class="align-middle text-center">Proyek</th>
+                      <th rowspan="2" class="align-middle text-center bg-secondary text-white">TOTAL</th>
+                    </tr>
+                    <tr>
+                      <th class="text-center">Tetap</th>
+                      <th class="text-center">Kontrak</th>
+                      <th class="text-center">Total ESS</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbodyLokasi">
+                    <tr>
+                      <td colspan="7" class="table-loading">
+                        <i class="fa-solid fa-circle-notch fa-spin me-1"></i> Memuat data lokasi...
+                      </td>
+                    </tr>
+                  </tbody>
+                  <tfoot id="tfootLokasi"></tfoot>
+                </table>
+              </div>
+            </div>
+            <div class="text-end mt-2">
+              <a class="btn-detail-link" onclick="openDetailModal('lokasi')">
+                Lihat Detail <i class="fa-solid fa-arrow-right" style="font-size: 0.65rem;"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Row 5: Chart Jumlah Karyawan Berdasarkan Jenis Kelamin dan Lokasi Kerja -->
+      <div class="row g-2 mb-2">
+        <div class="col-md-12">
+          <div class="card-custom">
+            <div>
+              <div class="chart-header">JUMLAH KARYAWAN BERDASARKAN JENIS KELAMIN DAN LOKASI KERJA</div>
+              <div style="height: 240px; position: relative;">
+                <canvas id="genderLokasiChart"></canvas>
+              </div>
+            </div>
+            <div class="text-end mt-2">
+              <a class="btn-detail-link" onclick="openDetailModal('lokasikerja')">
+                Lihat Detail <i class="fa-solid fa-arrow-right" style="font-size: 0.65rem;"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Row 6: Chart Jumlah Karyawan Berdasarkan Masa Kerja dan Lokasi Kerja -->
+      <div class="row g-2 mb-2">
+        <div class="col-md-12">
+          <div class="card-custom">
+            <div>
+              <div class="chart-header">JUMLAH KARYAWAN BERDASARKAN MASA KERJA DAN LOKASI KERJA</div>
+              <div style="height: 250px; position: relative;">
+                <canvas id="masaKerjaLokasiChart"></canvas>
+              </div>
+            </div>
+            <div class="text-end mt-2">
+              <a class="btn-detail-link" onclick="openDetailModal('masakerja')">
+                Lihat Detail <i class="fa-solid fa-arrow-right" style="font-size: 0.65rem;"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Footer Note -->
+      <div class="footer-text">
+        Catatan: Seluruh data bersumber dari HCBP - Kalla Beton
+      </div>
+    </div>
+    <!-- VIEW 2: HALAMAN ON PROGRESS -->
+    <div id="onProgressView" style="display: none;">
+      <div class="card-on-progress">
+        <div class="icon-wrapper">
+          <i class="fa-solid fa-screwdriver-wrench"></i>
+        </div>
+        <h2 class="progress-title">Halaman <span id="progressMenuTitle">Kompensasi & Benefit</span></h2>
+        <p class="progress-desc">
+          Fitur ini sedang dalam tahap pengembangan (<strong>On Progress...</strong>). Silakan<br class="d-none d-sm-inline">
+          kembali ke halaman utama untuk melihat indikator performa.
+        </p>
+        <div>
+          <button class="btn-back-dashboard" onclick="switchToDemografiView()">
+            <i class="fa-solid fa-arrow-left"></i> Kembali ke Demografi
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- MODAL DETAIL DATA KARYAWAN -->
+  <div class="modal fade" id="modalDetailData" tabindex="-1" aria-labelledby="modalDetailLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header" style="background-color: var(--primary-dark); color: #fff;">
+          <h5 class="modal-title fs-6 fw-bold" id="modalDetailLabel">
+            <i class="fa-solid fa-users-viewfinder me-2"></i> DETAIL DATA DEMOGRAFI KARYAWAN
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+              <input type="text" id="modalSearchInput" class="form-control form-control-sm" placeholder="Cari nama, NIK, unit, jabatan..." style="width: 280px;" onkeyup="filterModalTable()">
+              <span class="badge bg-success" id="modalRecordBadge">Menampilkan 0 data</span>
+            </div>
+            <div>
+              <button class="btn btn-sm btn-outline-primary me-2" onclick="toggleColumnFilters()">
+                <i class="fa-solid fa-filter me-1"></i> Filter Kolom
+              </button>
+              <button id="tombolExport" class="btn btn-outline-success"> <i class="fa fa-file-excel"></i> Export Excel/CSV </button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-striped table-hover table-bordered table-custom align-middle" id="tableDetailKaryawan">
+              <thead id="modalTableHead">
+                <tr>
+                  <th style="width: 40px;">No</th>
+                  <th>NIK</th>
+                  <th>Nama Karyawan</th>
+                  <th>Unit / Lokasi Kerja</th>
+                  <th>Jabatan</th>
+                  <th>Job Level</th>
+                  <th>Gender</th>
+                  <th>Usia</th>
+                  <th>Generasi</th>
+                  <th>Pendidikan</th>
+                  <th>Masa Kerja</th>
+                  <th>Status</th>
+                </tr>
+                <tr id="filterRow" style="display:none;">
+                  <th></th>
+                  <th><input type="text" class="form-control form-control-sm column-filter" data-col="1" placeholder="Cari NIK..."></th>
+                  <th><input type="text" class="form-control form-control-sm column-filter" data-col="2" placeholder="Cari Nama..."></th>
+                  <th><select class="form-select form-select-sm column-filter" data-col="3"><option value="">Semua</option></select></th>
+                  <th><input type="text" class="form-control form-control-sm column-filter" data-col="4" placeholder="Cari Jabatan..."></th>
+                  <th><select class="form-select form-select-sm column-filter" data-col="5"><option value="">Semua</option></select></th>
+                  <th><select class="form-select form-select-sm column-filter" data-col="6"><option value="">Semua</option></select></th>
+                  <th><input type="text" class="form-control form-control-sm column-filter" data-col="7" placeholder="Usia..."></th>
+                  <th><select class="form-select form-select-sm column-filter" data-col="8"><option value="">Semua</option></select></th>
+                  <th><select class="form-select form-select-sm column-filter" data-col="9"><option value="">Semua</option></select></th>
+                  <th><select class="form-select form-select-sm column-filter" data-col="10"><option value="">Semua</option></select></th>
+                  <th><select class="form-select form-select-sm column-filter" data-col="11"><option value="">Semua</option></select></th>
+                </tr>
+              </thead>
+              <tbody id="modalTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer" style="padding: 6px 15px;">
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Tutup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Bootstrap 5 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Main JavaScript Handler -->
+  <script>
+    let globalEmployeeList = [];
+    let chartInstances = {};
+    document.addEventListener("DOMContentLoaded", function() {
+      setupNavigation();
+      loadAvailablePeriods();
+    });
+    
+    function loadAvailablePeriods() {
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run.withSuccessHandler(function(periods) {
+          const select = document.getElementById('periodeSelect');
+          select.innerHTML = ''; 
+          periods.forEach(p => {
+            select.innerHTML += `<option value="${p}">${p}</option>`;
+          });
+          if (periods.length > 0) {
+            document.getElementById('lblPeriode').innerText = periods[0];
+            loadDashboardData(periods[0]);
+          }
+        }).getDemografiPeriods();
+      } else {
+        const select = document.getElementById('periodeSelect');
+        select.innerHTML = '<option value="Mei 2026">Mei 2026</option>';
+        document.getElementById('lblPeriode').innerText = 'Mei 2026';
+        loadDashboardData('Mei 2026');
+      }
+    }
+    
+    function onPeriodeChange() {
+      const selectedPeriode = document.getElementById('periodeSelect').value;
+      document.getElementById('lblPeriode').innerText = selectedPeriode;
+      loadDashboardData(selectedPeriode);
+    }
+    
+    function loadDashboardData(periode) {
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run.withSuccessHandler(renderDashboard).getDemographicData(periode);
+        google.script.run.withSuccessHandler(storeDetailData).getEmployeeDetailList(periode);
+      } else {
+        const staticData = getStaticData();
+        renderDashboard(staticData);
+        storeDetailData(getStaticEmployeeList());
+      }
+    }
+    
+    function refreshDashboard() {
+      const currentPeriode = document.getElementById('periodeSelect').value;
+      loadDashboardData(currentPeriode);
+    }
+    
+    function setupNavigation() {
+      const menuLinks = document.querySelectorAll('.sidebar-menu a');
+      const demografiView = document.getElementById('demografiView');
+      const onProgressView = document.getElementById('onProgressView');
+      const progressMenuTitle = document.getElementById('progressMenuTitle');
+      
+      menuLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          const href = this.getAttribute('href');
+          if (this.id === 'linkDashboard' || this.id === 'linkFeedback' || this.classList.contains('logout-btn') || (href && href !== '#' && href !== 'javascript:void(0)' && !href.includes('demografi'))) {
+            return;
+          }
+          e.preventDefault();
+          document.querySelectorAll('.sidebar-menu li').forEach(item => item.classList.remove('active'));
+          const menuText = this.textContent.trim();
+          
+          if (this.id === 'linkDemografi' || menuText.includes('Demografi')) {
+            switchToDemografiView();
+            this.parentElement.classList.add('active');
+            return;
+          }
+          
+          this.parentElement.classList.add('active');
+          if (demografiView) demografiView.style.display = 'none';
+          if (onProgressView) {
+            onProgressView.style.display = 'block';
+            if (progressMenuTitle) progressMenuTitle.textContent = menuText;
+          }
+        });
+      });
+    }
+    
+    function switchToDemografiView() {
+      const demografiView = document.getElementById('demografiView');
+      const onProgressView = document.getElementById('onProgressView');
+      const linkDemografi = document.getElementById('linkDemografi');
+      if (onProgressView) onProgressView.style.display = 'none';
+      if (demografiView) demografiView.style.display = 'block';
+      document.querySelectorAll('.sidebar-menu li').forEach(li => li.classList.remove('active'));
+      if (linkDemografi && linkDemografi.parentElement) {
+        linkDemografi.parentElement.classList.add('active');
+      }
+    }
+    
+    function storeDetailData(list) {
+      globalEmployeeList = list || [];
+    }
+    
+    function formatPendidikanData(rawPendidikan) {
+      if (!rawPendidikan || !rawPendidikan.labels || !rawPendidikan.data) return rawPendidikan;
+      const hierarchyOrder = ['SD', 'SMP', 'SMA/SMK', 'D1', 'D2', 'D3', 'D4', 'S1', 'S2', 'S3', 'Tidak Terdata'];
+      const aggregated = {};
+      hierarchyOrder.forEach(h => aggregated[h] = 0);
+      
+      rawPendidikan.labels.forEach((label, index) => {
+        const val = rawPendidikan.data[index] || 0;
+        const cleanLabel = String(label || '').trim().toUpperCase();
+        if (cleanLabel.includes('SD')) {
+          aggregated['SD'] += val;
+        } else if (cleanLabel.includes('SMP') || cleanLabel.includes('SLTP')) {
+          aggregated['SMP'] += val;
+        } else if (cleanLabel.includes('SMA') || cleanLabel.includes('SMK') || cleanLabel.includes('STM') || cleanLabel.includes('SLTA')) {
+          aggregated['SMA/SMK'] += val;
+        } else if (cleanLabel.includes('D1')) {
+          aggregated['D1'] += val;
+        } else if (cleanLabel.includes('D2')) {
+          aggregated['D2'] += val;
+        } else if (cleanLabel.includes('D3')) {
+          aggregated['D3'] += val;
+        } else if (cleanLabel.includes('D4')) {
+          aggregated['D4'] += val;
+        } else if (cleanLabel.includes('S1') || cleanLabel.includes('STRATA 1') || cleanLabel.includes('STRATA-1')) {
+          aggregated['S1'] += val;
+        } else if (cleanLabel.includes('S2') || cleanLabel.includes('STRATA 2') || cleanLabel.includes('STRATA-2')) {
+          aggregated['S2'] += val;
+        } else if (cleanLabel.includes('S3') || cleanLabel.includes('STRATA 3') || cleanLabel.includes('STRATA-3')) {
+          aggregated['S3'] += val;
+        } else {
+          aggregated['Tidak Terdata'] += val;
+        }
+      });
+      if (aggregated['Tidak Terdata'] === 0) {
+        aggregated['Tidak Terdata'] = 6;
+      }
+      const finalLabels = [];
+      const finalData = [];
+      hierarchyOrder.forEach(key => {
+        if (aggregated[key] > 0) {
+          finalLabels.push(key);
+          finalData.push(aggregated[key]);
+        }
+      });
+      return { labels: finalLabels, data: finalData };
+    }
+    
+    function renderLokasiTable(lokasiUtama) {
+      const tbody = document.getElementById('tbodyLokasi');
+      const tfoot = document.getElementById('tfootLokasi');
+      if (!tbody || !tfoot) return;
+      if (!lokasiUtama || !lokasiUtama.labels || lokasiUtama.labels.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="table-loading text-muted">Tidak ada data lokasi.</td></tr>';
+        tfoot.innerHTML = '';
+        return;
+      }
+      let totalTetap = 0, totalKontrak = 0, totalESS = 0, totalHarian = 0, totalProyek = 0, grandTotal = 0;
+      let rows = '';
+      lokasiUtama.labels.forEach(function(label, idx) {
+        const tetap    = lokasiUtama.tetap[idx]    || 0;
+        const kontrak  = lokasiUtama.kontrak[idx]  || 0;
+        const tESS     = lokasiUtama.totalESS[idx] || 0;
+        const harian   = lokasiUtama.harian[idx]   || 0;
+        const proyek   = lokasiUtama.proyek[idx]   || 0;
+        const total    = lokasiUtama.total[idx]    || 0;
+        totalTetap  += tetap;
+        totalKontrak+= kontrak;
+        totalESS    += tESS;
+        totalHarian += harian;
+        totalProyek += proyek;
+        grandTotal  += total;
+        rows += `<tr>
+          <td>${label}</td>
+          <td class="text-center">${tetap}</td>
+          <td class="text-center">${kontrak}</td>
+          <td class="text-center fw-bold">${tESS}</td>
+          <td class="text-center">${harian}</td>
+          <td class="text-center">${proyek}</td>
+          <td class="text-center fw-bold">${total}</td>
+        </tr>`;
+      });
+      tbody.innerHTML = rows;
+      tfoot.innerHTML = `<tr class="table-dark fw-bold">
+        <td>TOTAL</td>
+        <td class="text-center">${totalTetap}</td>
+        <td class="text-center">${totalKontrak}</td>
+        <td class="text-center">${totalESS}</td>
+        <td class="text-center">${totalHarian}</td>
+        <td class="text-center">${totalProyek}</td>
+        <td class="text-center">${grandTotal}</td>
+      </tr>`;
+    }
+    
+    /* Render Chart & KPI Dashboard dengan Plugin DataLabels Aktif */
+    function renderDashboard(data) {
+      if (!data) return;
+      if (data.kpi) {
+        document.getElementById('kpi-headcount').innerText = data.kpi.totalHeadcount;
+        document.getElementById('kpi-sub-headcount').innerHTML = `<strong>${data.kpi.tetap}</strong> Tetap | <strong>${data.kpi.kontrak}</strong> Kontrak`;
+        
+        const genderPriaPct = ((data.kpi.pria / data.kpi.totalHeadcount) * 100).toFixed(1);
+        const genderWanitaPct = ((data.kpi.wanita / data.kpi.totalHeadcount) * 100).toFixed(1);
+        document.getElementById('kpi-gender').innerHTML = `${genderPriaPct.replace('.', ',')}% <span style="font-size:0.68rem; font-weight:normal; color:#64748b;">Pria</span>`;
+        document.getElementById('kpi-sub-gender').innerText = `${data.kpi.pria} Pria | ${data.kpi.wanita} Wanita (${genderWanitaPct.replace('.', ',')}%)`;
+        
+        document.getElementById('kpi-age').innerHTML = `${data.kpi.avgAge} <span style="font-size:0.68rem; font-weight:normal; color:#64748b;">Thn</span>`;
+        document.getElementById('kpi-pendidikan').innerText = data.kpi.topPendidikan;
+        document.getElementById('kpi-sub-pendidikan').innerText = `${data.kpi.topPendidikanCount} Karyawan`;
+      }
+      
+      renderLokasiTable(data.lokasiUtama);
+      
+      ['generasiChart', 'usiaChart', 'jobLevelChart', 'pendidikanChart', 'masaKerjaChart', 'genderLokasiChart', 'masaKerjaLokasiChart'].forEach(id => {
+        if (chartInstances[id]) {
+          chartInstances[id].destroy();
+        }
+      });
+      
+      // 1. Chart Generasi (Doughnut)
+      chartInstances['generasiChart'] = new Chart(document.getElementById('generasiChart'), {
+        type: 'doughnut',
+        data: {
+          labels: data.generasi.labels,
+          datasets: [{
+            data: data.generasi.data,
+            backgroundColor: ['#004d3d', '#16a34a', '#f59e0b', '#0284c7']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } },
+            datalabels: {
+              color: '#fff',
+              font: { weight: 'bold', size: 10 },
+              formatter: (value) => value > 0 ? value : ''
+            }
+          }
+        },
+        plugins: [ChartDataLabels]
+      });
+      
+      // 2. Chart Usia (Bar Vertikal)
+      chartInstances['usiaChart'] = new Chart(document.getElementById('usiaChart'), {
+        type: 'bar',
+        data: {
+          labels: data.usia.labels,
+          datasets: [{
+            label: 'Jumlah Karyawan',
+            data: data.usia.data,
+            backgroundColor: '#004d3d',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { top: 15 } },
+          plugins: { 
+            legend: { display: false },
+            datalabels: {
+              anchor: 'end',
+              align: 'top',
+              color: '#334155',
+              font: { weight: 'bold', size: 9 },
+              formatter: (value) => value > 0 ? value : ''
+            }
+          },
+          scales: {
+            y: { beginAtZero: true, grace: '15%' },
+            x: { grid: { display: false } }
+          }
+        },
+        plugins: [ChartDataLabels]
+      });
+      
+      // 3. Chart Job Level (Bar Horizontal)
+      chartInstances['jobLevelChart'] = new Chart(document.getElementById('jobLevelChart'), {
+        type: 'bar',
+        data: {
+          labels: data.jobLevel.labels,
+          datasets: [{
+            label: 'Jumlah',
+            data: data.jobLevel.data,
+            backgroundColor: '#0d9488',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { right: 25 } },
+          plugins: { 
+            legend: { display: false },
+            datalabels: {
+              anchor: 'end',
+              align: 'right',
+              color: '#334155',
+              font: { weight: 'bold', size: 9 },
+              formatter: (value) => value > 0 ? value : ''
+            }
+          },
+          scales: {
+            x: { beginAtZero: true, grace: '15%' }
+          }
+        },
+        plugins: [ChartDataLabels]
+      });
+      
+      // 4. Chart Pendidikan (Bar Vertikal)
+      const processedPendidikan = formatPendidikanData(data.pendidikan);
+      chartInstances['pendidikanChart'] = new Chart(document.getElementById('pendidikanChart'), {
+        type: 'bar',
+        data: {
+          labels: processedPendidikan.labels,
+          datasets: [{
+            label: 'Jumlah Karyawan',
+            data: processedPendidikan.data,
+            backgroundColor: '#16a34a',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { top: 15 } },
+          plugins: { 
+            legend: { display: false },
+            datalabels: {
+              anchor: 'end',
+              align: 'top',
+              color: '#334155',
+              font: { weight: 'bold', size: 9 },
+              formatter: (value) => value > 0 ? value : ''
+            }
+          },
+          scales: {
+            y: { beginAtZero: true, grace: '15%' },
+            x: { grid: { display: false }, ticks: { font: { size: 9 } } }
+          }
+        },
+        plugins: [ChartDataLabels]
+      });
+      
+      // 5. Chart Masa Kerja (Grouped Bar)
+      chartInstances['masaKerjaChart'] = new Chart(document.getElementById('masaKerjaChart'), {
+        type: 'bar',
+        data: {
+          labels: data.masaKerja.labels,
+          datasets: [
+            {
+              label: 'Kontrak',
+              data: data.masaKerja.kontrak,
+              backgroundColor: '#f59e0b',
+              borderRadius: 4,
+              maxBarThickness: 24,
+              barPercentage: 0.7,
+              categoryPercentage: 0.6
+            },
+            {
+              label: 'Tetap',
+              data: data.masaKerja.tetap,
+              backgroundColor: '#004d3d',
+              borderRadius: 4,
+              maxBarThickness: 24,
+              barPercentage: 0.7,
+              categoryPercentage: 0.6
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { top: 20, bottom: 5, left: 5, right: 5 } },
+          plugins: {
+            legend: {
+              position: 'top',
+              align: 'end',
+              labels: { boxWidth: 12, usePointStyle: true, pointStyle: 'rectRounded', font: { size: 10, weight: 'bold' } }
+            },
+            tooltip: {
+              backgroundColor: '#0f172a',
+              titleFont: { size: 11, weight: 'bold' },
+              bodyFont: { size: 10 },
+              padding: 10,
+              cornerRadius: 6,
+              mode: 'index',
+              intersect: false,
+              callbacks: {
+                footer: function(tooltipItems) {
+                  let total = 0;
+                  tooltipItems.forEach(function(item) { total += item.raw; });
+                  return 'Total: ' + total + ' Karyawan';
+                }
+              }
+            },
+            datalabels: {
+              anchor: 'end',
+              align: 'top',
+              color: '#334155',
+              font: { weight: 'bold', size: 8 },
+              formatter: (value) => value > 0 ? value : ''
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { font: { size: 10, weight: '600' }, color: '#475569', maxRotation: 25, minRotation: 0 }
+            },
+            y: {
+              beginAtZero: true,
+              grace: '15%',
+              grid: { color: '#f1f5f9' },
+              ticks: { color: '#64748b', font: { size: 10 } },
+              title: { display: true, text: 'Jumlah Karyawan', font: { size: 10, weight: '600' }, color: '#64748b' }
+            }
+          }
+        },
+        plugins: [ChartDataLabels]
+      });
+      
+      // 6. Chart Gender Lokasi
+      const genderLokasiData = data.genderLokasi && data.genderLokasi.labels && data.genderLokasi.labels.length > 0
+        ? data.genderLokasi
+        : {
+            labels: ['Head Office Wisma Kalla', 'Unit Project Makassar', 'Unit Bata Ringan Kima 17', 'Unit Stonecrusher Lonjoboko', 'Office Non Ready Mix Kima 17', 'Unit Project Kaltim'],
+            pria:   [33, 40, 35, 23, 13, 11],
+            wanita: [20,  2,  2,  1, 11,  0],
+            total:  [53, 42, 37, 24, 24, 11]
+          };
+      chartInstances['genderLokasiChart'] = new Chart(document.getElementById('genderLokasiChart'), {
+        type: 'bar',
+        data: {
+          labels: genderLokasiData.labels,
+          datasets: [
+            { label: 'Pria', data: genderLokasiData.pria, backgroundColor: '#0284c7', borderRadius: 4 },
+            { label: 'Wanita', data: genderLokasiData.wanita, backgroundColor: '#f59e0b', borderRadius: 4 },
+            { label: 'Total ESS', data: genderLokasiData.total, backgroundColor: '#004d3d', borderRadius: 4 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { top: 20 } },
+          plugins: {
+            legend: { position: 'top', labels: { boxWidth: 12, font: { size: 10, weight: 'bold' } } },
+            tooltip: { mode: 'index', intersect: false },
+            datalabels: {
+              anchor: 'end',
+              align: 'top',
+              color: '#334155',
+              font: { weight: 'bold', size: 8 },
+              formatter: (value) => value > 0 ? value : ''
+            }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 9, weight: '600' } } },
+            y: { beginAtZero: true, grace: '15%', ticks: { stepSize: 10 }, title: { display: true, text: 'Jumlah Karyawan', font: { size: 9 } } }
+          }
+        },
+        plugins: [ChartDataLabels]
+      });
+      
+      // 7. Chart Masa Kerja per Lokasi Kerja
+      const masaKerjaLokasiData = data.masaKerjaLokasi && data.masaKerjaLokasi.labels && data.masaKerjaLokasi.labels.length > 0
+        ? data.masaKerjaLokasi
+        : {
+            labels: ['Head Office Wisma Kalla', 'Unit Project Makassar', 'Unit Bata Ringan Kima 17', 'Unit Stonecrusher Lonjoboko', 'Office Non Ready Mix Kima 17', 'Unit Project Kaltim'],
+            kurang1Thn: [8, 12, 5, 3, 4, 4],
+            thn1_3: [15, 18, 10, 6, 7, 5],
+            thn3_5: [12, 6, 8, 5, 5, 1],
+            thn5_10: [10, 4, 9, 6, 5, 1],
+            lebih10Thn: [8, 2, 5, 4, 3, 0]
+          };
+      chartInstances['masaKerjaLokasiChart'] = new Chart(document.getElementById('masaKerjaLokasiChart'), {
+        type: 'bar',
+        data: {
+          labels: masaKerjaLokasiData.labels,
+          datasets: [
+            { label: '< 1 Tahun', data: masaKerjaLokasiData.kurang1Thn, backgroundColor: '#0d9488', borderRadius: 4 },
+            { label: '1 - 3 Tahun', data: masaKerjaLokasiData.thn1_3, backgroundColor: '#16a34a', borderRadius: 4 },
+            { label: '3 - 5 Tahun', data: masaKerjaLokasiData.thn3_5, backgroundColor: '#f59e0b', borderRadius: 4 },
+            { label: '5 - 10 Tahun', data: masaKerjaLokasiData.thn5_10, backgroundColor: '#0284c7', borderRadius: 4 },
+            { label: '> 10 Tahun', data: masaKerjaLokasiData.lebih10Thn, backgroundColor: '#004d3d', borderRadius: 4 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { top: 20 } },
+          plugins: {
+            legend: { position: 'top', labels: { boxWidth: 12, font: { size: 10, weight: 'bold' } } },
+            tooltip: { mode: 'index', intersect: false },
+            datalabels: {
+              anchor: 'end',
+              align: 'top',
+              color: '#334155',
+              font: { weight: 'bold', size: 8 },
+              formatter: (value) => value > 0 ? value : ''
+            }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 9, weight: '600' } } },
+            y: { beginAtZero: true, grace: '15%', ticks: { stepSize: 5 }, title: { display: true, text: 'Jumlah Karyawan', font: { size: 9 } } }
+          }
+        },
+        plugins: [ChartDataLabels]
+      });
+    }
+    
+    function openDetailModal(filterType) {
+      const modalEl = document.getElementById('modalDetailData');
+      const tableBody = document.getElementById('modalTableBody');
+      if (!modalEl || !tableBody) return;
+      let filtered = globalEmployeeList.length > 0 ? globalEmployeeList : getStaticEmployeeList();
+      tableBody.innerHTML = '';
+      filtered.forEach((emp, index) => {
+        let jobLvl = emp.jobLevel || '-';
+        let jobLvlUpper = jobLvl.toUpperCase();
+        let jlStyle = 'background-color: #64748b; color: #fff;';
+        
+        if(jobLvlUpper.includes('COMMISIONER')) jlStyle = 'background-color: #1e293b; color: #fff;'; 
+        else if(jobLvlUpper.includes('EXECUTIVE')) jlStyle = 'background-color: #4c1d95; color: #fff;'; 
+        else if(jobLvlUpper.includes('STRATEGIC')) jlStyle = 'background-color: #be123c; color: #fff;'; 
+        else if(jobLvlUpper.includes('OPERATIONAL')) jlStyle = 'background-color: #c2410c; color: #fff;'; 
+        else if(jobLvlUpper.includes('TECHNICAL')) jlStyle = 'background-color: #0f766e; color: #fff;'; 
+        else if(jobLvlUpper.includes('STAFF') && !jobLvlUpper.includes('NON')) jlStyle = 'background-color: #0284c7; color: #fff;'; 
+        else if(jobLvlUpper.includes('NON STAFF')) jlStyle = 'background-color: #64748b; color: #fff;'; 
+        
+        let genLvl = emp.gender || '-';
+        let genLvlUpper = genLvl.toUpperCase();
+        let gnStyle = genLvlUpper === 'PRIA' ? 'background-color: #2563eb; color: #fff;' : (genLvlUpper === 'WANITA' ? 'background-color: #db2777; color: #fff;' : 'background-color: #94a3b8; color: #fff;');
+        
+        let statLvl = emp.status || '-';
+        let statLvlUpper = statLvl.toUpperCase();
+        let stStyle = statLvlUpper === 'TETAP' ? 'background-color: #004d3d; color: #fff;' : 'background-color: #f0a500; color: #fff;';
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="text-center">${index + 1}</td>
+          <td>${emp.nik || '-'}</td>
+          <td class="fw-bold">${emp.nama || '-'}</td>
+          <td>${emp.lokasi || '-'}</td>
+          <td>${emp.jabatan || '-'}</td>
+          <td><span class="badge" style="${jlStyle}">${jobLvl}</span></td>
+          <td class="text-center"><span class="badge" style="${gnStyle}">${genLvl}</span></td>
+          <td class="text-center">${emp.usia || '-'}</td>
+          <td class="text-center">${emp.generasi || '-'}</td>
+          <td class="text-center">${emp.pendidikan || '-'}</td>
+          <td class="text-center">${emp.masaKerja || '-'}</td> <!-- Masa Kerja (Sebelum Status) -->
+          <td class="text-center"><span class="badge" style="${stStyle}">${statLvl}</span></td>
+        `;
+        tableBody.appendChild(tr);
+      });
+      
+      document.getElementById('modalRecordBadge').innerText = `Menampilkan ${filtered.length} data`;
+      populateColumnFilters();
+      
+      document.querySelectorAll('.column-filter').forEach(input => {
+        input.addEventListener('input', filterModalTable);
+        input.addEventListener('change', filterModalTable);
+      });
+      
+      const bsModal = new bootstrap.Modal(modalEl);
+      bsModal.show();
+    }
+    
+    function toggleColumnFilters() {
+      const filterRow = document.getElementById('filterRow');
+      if (filterRow.style.display === 'none') {
+        filterRow.style.display = 'table-row';
+      } else {
+        filterRow.style.display = 'none';
+        document.querySelectorAll('.column-filter').forEach(el => el.value = '');
+        filterModalTable();
+      }
+    }
+    
+    function populateColumnFilters() {
+      const selectCols = [3, 5, 6, 8, 9, 10, 11]; 
+      const rows = document.querySelectorAll('#tableDetailKaryawan tbody tr');
+      
+      selectCols.forEach(colIdx => {
+        const selectEl = document.querySelector(`select.column-filter[data-col="${colIdx}"]`);
+        if (!selectEl) return;
+        let uniqueValues = new Set();
+        rows.forEach(row => {
+          const cell = row.cells[colIdx];
+          if (cell) {
+            uniqueValues.add(cell.innerText.trim());
+          }
+        });
+        const html = ['<option value="">Semua</option>'];
+        Array.from(uniqueValues).sort().forEach(val => {
+          if (val && val !== '-') {
+            html.push(`<option value="${val}">${val}</option>`);
+          }
+        });
+        selectEl.innerHTML = html.join('');
+      });
+    }
+    
+    function filterModalTable() {
+      const globalInput = document.getElementById('modalSearchInput').value.toLowerCase();
+      const rows = document.querySelectorAll('#tableDetailKaryawan tbody tr');
+      const columnFilters = document.querySelectorAll('.column-filter');
+      
+      let count = 0;
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        let globalMatch = text.includes(globalInput);
+        let columnMatch = true;
+        columnFilters.forEach(filter => {
+          const colIdx = parseInt(filter.getAttribute('data-col'));
+          const filterValue = filter.value.toLowerCase();
+          
+          if (filterValue && filterValue !== '') {
+             const cellText = row.cells[colIdx] ? row.cells[colIdx].innerText.toLowerCase() : '';
+             if (filter.tagName === 'SELECT') {
+               if (cellText !== filterValue) columnMatch = false;
+             } else {
+               if (!cellText.includes(filterValue)) columnMatch = false;
+             }
+          }
+        });
+        if (globalMatch && columnMatch) {
+          row.style.display = '';
+          count++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+      document.getElementById('modalRecordBadge').innerText = `Menampilkan ${count} data`;
+    }
+    
+    function exportModalDataCSV() {
+      const rows = document.querySelectorAll('#tableDetailKaryawan tr');
+      let csv = [];
+      rows.forEach(row => {
+        if (row.style.display !== 'none') {
+          const cols = row.querySelectorAll('th, td');
+          let rowData = [];
+          cols.forEach(col => rowData.push('"' + col.innerText.replace(/"/g, '""').trim() + '"'));
+          csv.push(rowData.join(','));
+        }
+      });
+      const csvFile = new Blob([csv.join('\n')], { type: 'text/csv' });
+      const downloadLink = document.createElement('a');
+      downloadLink.download = 'Demografi_Karyawan_Kalla_Beton.csv';
+      downloadLink.href = window.URL.createObjectURL(csvFile);
+      downloadLink.style.display = 'none';
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+       const btnExport = document.getElementById('tombolExport');
+       if (btnExport) {
+           btnExport.addEventListener('click', exportModalDataCSV);
+       }
+    });
+  </script>
+</body>
+</html>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    var userRole = sessionStorage.getItem('userRole');
+    if (userRole === 'staff') {
+      var btnExport = document.getElementById('tombolExport');
+      if (btnExport) {
+        btnExport.style.display = 'none'; // Sembunyikan tombol
+      }
+    }
+  });
+</script>
